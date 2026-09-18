@@ -1,0 +1,9 @@
+{
+  "metrics": {
+    "australian-gp-2026": {"mae": 1.46, "podium_hits": 3},
+    "chinese-gp-2026":    {"mae": 2.60, "podium_hits": 2},
+    "japanese-gp-2026":   {"mae": 0.71, "podium_hits": 3}
+  },
+  "recorded_at": "2026-08-22",
+  "note": "re-frozen on the DNF-free-form + demotion-damper model"
+}
