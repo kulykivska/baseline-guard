@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "baseline-guard"
+version = "0.1.0"
+description = "Fail a build when a model regressed on any slice, not just on average."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Yuliia Kulykivska" }]
+requires-python = ">=3.11"
+keywords = ["machine-learning", "regression-testing", "ci", "model-monitoring", "mlops"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+baseline-guard = "baseline_guard.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kulykivska/baseline-guard"
+Issues = "https://github.com/kulykivska/baseline-guard/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/baseline_guard"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

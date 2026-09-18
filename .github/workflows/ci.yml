@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest -q
+      - name: The README's sample run must still fail the way the README says
+        run: |
+          set +e
+          baseline-guard check demo/results.json --baseline demo/baseline.json \
+            --spec demo/spec.toml --max-age-days 14
+          code=$?
+          test "$code" -eq 1 || { echo "expected exit 1, got $code"; exit 1; }

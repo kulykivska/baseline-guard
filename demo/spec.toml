@@ -1,0 +1,8 @@
+[metrics.mae]
+direction = "lower"
+limit = 0.4
+aggregate_limit = 0.2
+
+[metrics.podium_hits]
+direction = "higher"
+limit = 1
