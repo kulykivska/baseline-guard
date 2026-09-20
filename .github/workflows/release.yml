@@ -5,7 +5,10 @@ name: Release
 # and the id-token permission below is what proves it.
 on:
   push:
-    tags: ["v*"]
+    # Semantic version tags only. The floating major tag that the Action is
+    # used by (v1) points at whatever 1.x is current and never matches the
+    # version in pyproject.toml, so it must not trigger a release.
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 
 permissions:
   contents: read
