@@ -76,6 +76,19 @@ report = check(
 report.raise_for_status()   # RegressionError naming every slice that failed
 ```
 
+## As a GitHub Action
+
+```yaml
+- uses: kulykivska/baseline-guard@v1
+  with:
+    results: eval/results.json
+    baseline: eval/baseline.json
+    spec: eval/spec.toml
+    max-age-days: 30
+```
+
+The report is written to the job summary, and the step fails on a regression.
+
 ## The opinions it holds
 
 **A baseline is never overwritten by accident.** `save` refuses to clobber an existing file without `--force`. Re-freezing the baseline is the one action that makes a regression disappear, so it should take a deliberate keystroke, not a default.
@@ -101,6 +114,13 @@ python -m venv .venv
 .venv/bin/pip install -e ".[dev]"
 .venv/bin/python -m pytest
 ```
+
+## Related
+
+One of a small family of tools that stop a bad change reaching production:
+
+- [dep-guard](https://github.com/kulykivska/dep-guard) — fail a build when a dependency can run code at install time or drift under a floating range.
+- [calibration-guard](https://github.com/kulykivska/calibration-guard) — probability calibration that refuses to ship a broken curve.
 
 ## License
 
