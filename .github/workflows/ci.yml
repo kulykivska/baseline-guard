@@ -26,3 +26,21 @@ jobs:
             --spec demo/spec.toml --max-age-days 14
           code=$?
           test "$code" -eq 1 || { echo "expected exit 1, got $code"; exit 1; }
+
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The action must fail on the demo, which regresses on one slice.
+      - id: guard
+        continue-on-error: true
+        uses: ./
+        with:
+          results: demo/results.json
+          baseline: demo/baseline.json
+          spec: demo/spec.toml
+          max-age-days: 14
+      - name: The action must have failed
+        run: |
+          test "${{ steps.guard.outcome }}" = "failure" \
+            || { echo "expected failure, got ${{ steps.guard.outcome }}"; exit 1; }

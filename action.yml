@@ -1,0 +1,68 @@
+name: Model Regression Baseline Guard
+description: Fail a build when a model regressed on any slice, not just on average.
+branding:
+  icon: bar-chart-2
+  color: purple
+
+inputs:
+  results:
+    description: "JSON file of {slice: {metric: value}} produced by your evaluation."
+    required: true
+  baseline:
+    description: Path to the frozen baseline file.
+    required: false
+    default: baseline.json
+  spec:
+    description: TOML or JSON file of per-metric budgets.
+    required: true
+  max-age-days:
+    description: Warn when the baseline is older than this many days.
+    required: false
+    default: ''
+  python-version:
+    description: Python used to run the check.
+    required: false
+    default: '3.12'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install baseline-guard
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: pip install --quiet "$ACTION_PATH"
+
+    - name: Check the run against the baseline
+      shell: bash
+      # Every input reaches the shell as an environment variable rather than
+      # through ${{ }} interpolation, which would paste them into the script.
+      env:
+        RESULTS: ${{ inputs.results }}
+        BASELINE: ${{ inputs.baseline }}
+        SPEC: ${{ inputs.spec }}
+        MAX_AGE_DAYS: ${{ inputs.max-age-days }}
+      run: |
+        set -uo pipefail
+        args=(check "$RESULTS" --baseline "$BASELINE" --spec "$SPEC")
+        if [ -n "$MAX_AGE_DAYS" ]; then
+          args+=(--max-age-days "$MAX_AGE_DAYS")
+        fi
+        # errexit stays off here on purpose: a regression is a non-zero exit,
+        # and the summary has to be written before the step fails on it.
+        report="$RUNNER_TEMP/baseline-guard.txt"
+        baseline-guard "${args[@]}" > "$report" 2>&1
+        status=$?
+        cat "$report"
+        {
+          echo "### Baseline guard"
+          echo
+          echo '```'
+          cat "$report"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit "$status"
